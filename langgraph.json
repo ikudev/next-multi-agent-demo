@@ -6,7 +6,7 @@
   ],
   "package_manager": "uv",
   "graphs": {
-    "sample_agent": "./main.py:graph"
+    "sample_agent": "./agent/main.py:agent"
   },
-  "env": "../.env"
+  "env": ".env"
 }
