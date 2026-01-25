@@ -13,14 +13,23 @@ const serviceAdapter = new ExperimentalEmptyAdapter();
 // 2. Create the CopilotRuntime instance and utilize the LangGraph AG-UI
 //    integration to setup the connection.
 const runtime = new CopilotRuntime({
-  agents: {
-    sample_agent: new LangGraphAgent({
-      deploymentUrl:
-        process.env.LANGGRAPH_DEPLOYMENT_URL || "http://localhost:8123",
-      graphId: "sample_agent",
-      langsmithApiKey: process.env.LANGSMITH_API_KEY || "",
-    }),
-  },
+  remoteEndpoints: (process.env.REMOTE_AGENT_URL || process.env.VERCEL_URL)
+    ? [
+        {
+          url: process.env.REMOTE_AGENT_URL || `https://${process.env.VERCEL_URL}/api/agent`,
+        },
+      ]
+    : undefined,
+  agents: !(process.env.REMOTE_AGENT_URL || process.env.VERCEL_URL)
+    ? {
+        sample_agent: new LangGraphAgent({
+          deploymentUrl:
+            process.env.LANGGRAPH_DEPLOYMENT_URL || "http://localhost:8123",
+          graphId: "sample_agent",
+          langsmithApiKey: process.env.LANGSMITH_API_KEY || "",
+        }),
+      }
+    : undefined,
 });
 
 // 3. Build a Next.js API route that handles the CopilotKit runtime requests.

@@ -26,5 +26,3 @@ agent = create_agent(
     state_schema=AgentState,
     system_prompt="You are a helpful research assistant."
 )
-
-graph = agent
