@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "install:agent": "sh ./scripts/setup-agent.sh || scripts\\setup-agent.bat",
+    "install:agent": "if [ -z \"$VERCEL\" ]; then sh ./scripts/setup-agent.sh || scripts\\setup-agent.bat; else echo 'Skipping agent install on Vercel'; fi",
     "postinstall": "npm run install:agent"
   },
   "dependencies": {
