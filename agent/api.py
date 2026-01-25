@@ -3,6 +3,10 @@ from copilotkit import CopilotKitSDK, LangGraphAgent
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load root .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # Add current directory to sys.path to import main
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
