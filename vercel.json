@@ -8,10 +8,5 @@
       "source": "/api/agent",
       "destination": "/agent/api.py"
     }
-  ],
-  "functions": {
-    "agent/api.py": {
-      "runtime": "@vercel/python"
-    }
-  }
+  ]
 }
