@@ -13,6 +13,5 @@ dependencies = [
     "python-dotenv>=1.0.0,<2.0.0",
     "langchain-openai>=1.1.0",
     "copilotkit>=0.1.74",
-    "langgraph-cli[inmem]>=0.1.55",
     "ag-ui-langgraph>=0.0.23",
 ]

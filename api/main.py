@@ -1,30 +1,54 @@
-from langgraph.graph import END, START, StateGraph
-from langchain_core.messages import SystemMessage, BaseMessage
-from langchain_openai import ChatOpenAI
-from copilotkit import CopilotKitState
-from typing import List, Annotated
+from fastapi import FastAPI
+from ag_ui_langgraph import add_langgraph_fastapi_endpoint
+from copilotkit import LangGraphAGUIAgent
 import os
-import operator
+import sys
+import logging
+import uvicorn
+from dotenv import load_dotenv
 
-class AgentState(CopilotKitState):
-    proverbs: List[str]
+# Load root .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-async def mock_llm(state: AgentState):
-    model = ChatOpenAI(model="gpt-4o-mini")
-    system_message = SystemMessage(content="You are a helpful assistant.")
-    # In LangGraph, we typically handle messages differently,
-    # but for simple cases we can just pass them to the model.
-    # Note: CopilotKitState already includes messages.
-    response = await model.ainvoke(
-        [
-            system_message,
-            *state["messages"],
-        ]
-    )
-    return {"messages": response}
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-graph = StateGraph(AgentState)
-graph.add_node("mock_llm", mock_llm)
-graph.add_edge(START, "mock_llm")
-graph.add_edge("mock_llm", END)
-agent = graph.compile()
+# Add current directory to sys.path to import main
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
+from agent import agent
+
+app = FastAPI()
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "agent_loaded": agent is not None,
+        "openai_key_present": "OPENAI_API_KEY" in os.environ
+    }
+
+# Using the configuration from the latest documentation
+add_langgraph_fastapi_endpoint(
+    app=app,
+    agent=LangGraphAGUIAgent(
+        name="sample_agent",
+        description="An example agent to use as a starting point for your own agent.",
+        graph=agent,
+    ),
+    path="/",
+)
+
+def main():
+  """Run the uvicorn server."""
+  uvicorn.run(
+    "main:app",
+    host="0.0.0.0",
+    port=8123,
+    reload=True,
+  )
+if __name__ == "__main__":
+  main()

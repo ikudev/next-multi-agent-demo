@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/agent/(.*)",
-      "destination": "/api/route.py"
+      "destination": "/api/main.py"
     },
     {
       "source": "/api/agent",
-      "destination": "/api/route.py"
+      "destination": "/api/main.py"
     }
   ]
 }
