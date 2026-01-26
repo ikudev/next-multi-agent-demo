@@ -17,7 +17,6 @@ if current_dir not in sys.path:
 app = FastAPI()
 
 @app.get("/api/agent/health")
-@app.get("/health")
 def health():
     try:
         from main import agent
@@ -41,16 +40,19 @@ try:
             agents=[
                 LangGraphAgent(
                     name="sample_agent",
+                    id="sample_agent", # Explicitly set the ID
                     graph=agent,
                 )
             ]
         )
-        # We mount it at /api/agent to match external URL
-        # AND at / to handle cases where Vercel strips the prefix
         add_fastapi_endpoint(app, sdk, "/api/agent")
-        add_fastapi_endpoint(app, sdk, "/")
         logger.info("CopilotKit SDK initialized successfully")
     else:
         logger.error("Agent is None, could not initialize SDK")
 except Exception as e:
     logger.error(f"Failed to initialize CopilotKit SDK: {e}")
+
+@app.get("/api/agent/list")
+def list_agents():
+    """Debug endpoint to see registered agents."""
+    return {"agents": [a.id for a in sdk.agents]}
