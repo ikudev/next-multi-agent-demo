@@ -4,10 +4,12 @@ It defines the workflow graph, state, tools, nodes and edges.
 """
 
 from typing import List
-
 from langchain.tools import tool
 from langchain.agents import create_agent
 from copilotkit import CopilotKitMiddleware, CopilotKitState
+import logging
+
+logger = logging.getLogger(__name__)
 
 @tool
 def get_weather(location: str):
@@ -19,10 +21,15 @@ def get_weather(location: str):
 class AgentState(CopilotKitState):
     proverbs: List[str]
 
-agent = create_agent(
-    model="gpt-4.1-mini",
-    tools=[get_weather],
-    middleware=[CopilotKitMiddleware()],
-    state_schema=AgentState,
-    system_prompt="You are a helpful research assistant."
-)
+try:
+    agent = create_agent(
+        model="gpt-4o-mini",
+        tools=[get_weather],
+        middleware=[CopilotKitMiddleware()],
+        state_schema=AgentState,
+        system_prompt="You are a helpful research assistant."
+    )
+    logger.info("Agent created successfully")
+except Exception as e:
+    logger.error(f"Error creating agent: {e}")
+    agent = None
