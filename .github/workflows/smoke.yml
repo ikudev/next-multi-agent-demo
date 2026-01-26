@@ -2,9 +2,9 @@ name: Smoke
 
 on:
   push:
-    branches: main
+    branches: [main]
   pull_request:
-    branches: main
+    branches: [main]
   schedule:
     - cron: "0 0 * * *" # Run daily at midnight UTC
 
@@ -36,7 +36,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
-          enable-cache: true
+          enable-cache: false
 
       - name: Configure uv to use matrix Python version
         run: echo "UV_PYTHON=python${{ matrix.python }}" >> $GITHUB_ENV
