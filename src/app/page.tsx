@@ -9,7 +9,6 @@ import {
   useDefaultTool,
   useFrontendTool,
   useHumanInTheLoop,
-  useLangGraphInterrupt,
   useRenderToolCall,
 } from "@copilotkit/react-core";
 import { CopilotKitCSSProperties, CopilotSidebar } from "@copilotkit/react-ui";
@@ -82,7 +81,7 @@ export default function CopilotKitPage() {
 
 function YourMainContent({ themeColor }: { themeColor: string }) {
   // 🪁 Shared State: https://docs.copilotkit.ai/pydantic-ai/shared-state
-  const { state, setState } = useCoAgent({
+  const { state, setState } = useCoAgent<AgentState>({
     name: "sample_agent",
   });
 
@@ -148,7 +147,7 @@ function YourMainContent({ themeColor }: { themeColor: string }) {
       style={{ backgroundColor: themeColor }}
       className="h-screen flex justify-center items-center flex-col transition-colors duration-300"
     >
-      <ProverbsCard state={state} setState={setState} />
+      <ProverbsCard state={state} />
     </div>
   );
 }
