@@ -23,7 +23,7 @@ from agent import agent
 
 app = FastAPI()
 
-@app.get("/health")
+@app.get("/agent/health")
 def health():
     return {
         "status": "ok",
@@ -39,7 +39,7 @@ add_langgraph_fastapi_endpoint(
         description="An example agent to use as a starting point for your own agent.",
         graph=agent,
     ),
-    path="/",
+    path="/agent",
 )
 
 def main():
