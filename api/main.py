@@ -1,35 +1,30 @@
-"""
-This is the main entry point for the agent.
-It defines the workflow graph, state, tools, nodes and edges.
-"""
-
-from typing import List
-from langchain.tools import tool
-from langchain.agents import create_agent
-from copilotkit import CopilotKitMiddleware, CopilotKitState
-import logging
-
-logger = logging.getLogger(__name__)
-
-@tool
-def get_weather(location: str):
-    """
-    Get the weather for a given location.
-    """
-    return f"The weather for {location} is 70 degrees."
+from langgraph.graph import END, START, StateGraph
+from langchain_core.messages import SystemMessage, BaseMessage
+from langchain_openai import ChatOpenAI
+from copilotkit import CopilotKitState
+from typing import List, Annotated
+import os
+import operator
 
 class AgentState(CopilotKitState):
     proverbs: List[str]
 
-try:
-    agent = create_agent(
-        model="gpt-4o-mini",
-        tools=[get_weather],
-        middleware=[CopilotKitMiddleware()],
-        state_schema=AgentState,
-        system_prompt="You are a helpful research assistant."
+async def mock_llm(state: AgentState):
+    model = ChatOpenAI(model="gpt-4o-mini")
+    system_message = SystemMessage(content="You are a helpful assistant.")
+    # In LangGraph, we typically handle messages differently,
+    # but for simple cases we can just pass them to the model.
+    # Note: CopilotKitState already includes messages.
+    response = await model.ainvoke(
+        [
+            system_message,
+            *state["messages"],
+        ]
     )
-    logger.info("Agent created successfully")
-except Exception as e:
-    logger.error(f"Error creating agent: {e}")
-    agent = None
+    return {"messages": response}
+
+graph = StateGraph(AgentState)
+graph.add_node("mock_llm", mock_llm)
+graph.add_edge(START, "mock_llm")
+graph.add_edge("mock_llm", END)
+agent = graph.compile()

@@ -1,9 +1,13 @@
-from fastapi import FastAPI, Request
-from copilotkit import CopilotKitSDK, LangGraphAgent
-from copilotkit.integrations.fastapi import add_fastapi_endpoint
+from fastapi import FastAPI
+from ag_ui_langgraph import add_langgraph_fastapi_endpoint
+from copilotkit import LangGraphAGUIAgent
 import os
 import sys
 import logging
+from dotenv import load_dotenv
+
+# Load root .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -14,45 +18,25 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.append(current_dir)
 
+from main import agent
+
 app = FastAPI()
 
 @app.get("/api/agent/health")
 def health():
-    try:
-        from main import agent
-        agent_loaded = agent is not None
-    except Exception as e:
-        logger.error(f"Health check failed to import agent: {e}")
-        agent_loaded = False
-
     return {
-        "status": "ok" if agent_loaded else "error",
-        "agent_loaded": agent_loaded,
-        "python_version": sys.version,
+        "status": "ok",
+        "agent_loaded": agent is not None,
         "openai_key_present": "OPENAI_API_KEY" in os.environ
     }
 
-# Initialize SDK
-try:
-    from main import agent
-    if agent:
-        sdk = CopilotKitSDK(
-            agents=[
-                LangGraphAgent(
-                    name="sample_agent",
-                    id="sample_agent", # Explicitly set the ID
-                    graph=agent,
-                )
-            ]
-        )
-        add_fastapi_endpoint(app, sdk, "/api/agent")
-        logger.info("CopilotKit SDK initialized successfully")
-    else:
-        logger.error("Agent is None, could not initialize SDK")
-except Exception as e:
-    logger.error(f"Failed to initialize CopilotKit SDK: {e}")
-
-@app.get("/api/agent/list")
-def list_agents():
-    """Debug endpoint to see registered agents."""
-    return {"agents": [a.id for a in sdk.agents]}
+# Using the configuration from the latest documentation
+add_langgraph_fastapi_endpoint(
+    app=app,
+    agent=LangGraphAGUIAgent(
+        name="sample_agent",
+        description="An example agent to use as a starting point for your own agent.",
+        graph=agent,
+    ),
+    path="/api/agent",
+)
