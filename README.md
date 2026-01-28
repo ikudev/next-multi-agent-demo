@@ -1,105 +1,93 @@
-# CopilotKit <> LangGraph Starter
+# CopilotKit & LangGraph Unified Starter
 
-This is a starter template for building AI agents using [LangGraph](https://www.langchain.com/langgraph) and [CopilotKit](https://copilotkit.ai). It provides a modern Next.js application with an integrated LangGraph agent to be built on top of.
+This project is a high-performance, full-stack starter template for building AI agents. It features a **Next.js** frontend integrated with a **LangGraph** (Python) agent, all deployed as a single unified project on **Vercel**.
 
-## Prerequisites
+## 🚀 Overview
 
-- Node.js 18+ 
-- Python 3.8+
-- Any of the following package managers:
-  - [pnpm](https://pnpm.io/installation) (recommended)
-  - npm
-  - [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
-  - [bun](https://bun.sh/)
-- OpenAI API Key (for the LangGraph agent)
+- **Frontend**: Next.js 15+ with Turbopack and CopilotKit for seamless AI integration.
+- **Backend (Agent)**: Python 3.12+ LangGraph agent hosted as a Vercel Serverless Function via FastAPI.
+- **Package Management**: `npm` for Node.js and `uv` for lightning-fast Python dependency management.
+- **Persistent State**: Integrated with LangGraph checkpointers for thread-aware memory.
 
-> **Note:** This repository ignores lock files (package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb) to avoid conflicts between different package managers. Each developer should generate their own lock file using their preferred package manager. After that, make sure to delete it from the .gitignore.
+---
 
-## Getting Started
+## 💻 Local Development
 
-1. Install dependencies using your preferred package manager:
+### 1. Prerequisites
+- [Node.js 18+](https://nodejs.org/)
+- [uv](https://github.com/astral-sh/uv) (for Python management)
+- OpenAI API Key
+
+### 2. Setup
+Clone the repository and install all dependencies:
+
 ```bash
-# Using pnpm (recommended)
-pnpm install
-
-# Using npm
+# Install Node.js dependencies
 npm install
 
-# Using yarn
-yarn install
-
-# Using bun
-bun install
+# Setup Python environment and dependencies
+# The .venv should be at the root, while dependencies are in the api/ folder
+uv venv
+cd api && uv sync
+cd ..
 ```
 
-> **Note:** Installing the package dependencies will also install the agent's python dependencies via the `install:agent` script.
-
-
-2. Set up your OpenAI API key:
+### 3. Environment Variables
+Create a `.env` file in the **root** directory:
 ```bash
-echo 'OPENAI_API_KEY=your-openai-api-key-here' > agent/.env
+OPENAI_API_KEY=your_openai_api_key_here
 ```
+*(You can use `example.env` as a reference)*
 
-3. Start the development server:
+### 4. Run the Project
+Start both the Next.js UI and the LangGraph agent concurrently:
 ```bash
-# Using pnpm
-pnpm dev
-
-# Using npm
 npm run dev
-
-# Using yarn
-yarn dev
-
-# Using bun
-bun run dev
 ```
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Agent API**: [http://localhost:8123](http://localhost:8123)
 
-This will start both the UI and agent servers concurrently.
+---
 
-## Available Scripts
-The following scripts can also be run using your preferred package manager:
-- `dev` - Starts both UI and agent servers in development mode
-- `dev:debug` - Starts development servers with debug logging enabled
-- `dev:ui` - Starts only the Next.js UI server
-- `dev:agent` - Starts only the LangGraph agent server
-- `build` - Builds the Next.js application for production
-- `start` - Starts the production server
-- `lint` - Runs ESLint for code linting
-- `install:agent` - Installs Python dependencies for the agent
+## ☁️ Deployment on Vercel
 
-## Documentation
+This project is designed for "Zero Config" deployment on Vercel.
 
-The main UI component is in `src/app/page.tsx`. You can:
-- Modify the theme colors and styling
-- Add new frontend actions
-- Customize the CopilotKit sidebar appearance
+### 1. Prepare for Deployment
+Ensure your code is pushed to a GitHub repository. Vercel will automatically detect the `api/` folder and treat the Python files as serverless functions.
 
-## 📚 Documentation
+### 2. Configure Vercel Project
+1.  **Import** your repository into Vercel.
+2.  **Environment Variables**: Add your `OPENAI_API_KEY` in the Vercel Dashboard (Settings > Environment Variables).
+3.  **Deployment Protection**: If your project is private, you may need to disable "Vercel Authentication" or provide a bypass token in `src/app/api/copilotkit/route.ts` to allow the Node.js runtime to call the Python functions.
 
-- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Learn more about LangGraph and its features
-- [CopilotKit Documentation](https://docs.copilotkit.ai) - Explore CopilotKit's capabilities
-- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API
-- [YFinance Documentation](https://pypi.org/project/yfinance/) - Financial data tools
+### 3. Verification
+Once deployed, your agent should be reachable at:
+`https://your-domain.vercel.app/agent/health`
 
-## Contributing
+---
 
-Feel free to submit issues and enhancement requests! This starter is designed to be easily extensible.
+## 📁 Project Structure
 
-## License
+- `src/app/`: Next.js frontend pages and CopilotKit runtime routes.
+- `api/`: The Python agent's "home".
+  - `main.py`: The FastAPI server entry point.
+  - `agent.py`: The LangGraph logic and graph definition.
+  - `pyproject.toml`: Python dependencies (managed by `uv`).
+- `vercel.json`: Routing configurations to map `/agent` requests to the Python function.
+- `.env`: Unified environment variable file for both frontend and backend.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 🛠 Available Scripts
 
-## Troubleshooting
+- `npm run dev`: Start UI and Agent together (Concurrent).
+- `npm run dev:ui`: Start only the Next.js frontend.
+- `npm run dev:agent`: Start only the Python agent.
+- `npm run lint`: Run ESLint to check for code quality issues.
 
-### Agent Connection Issues
-If you see "I'm having trouble connecting to my tools", make sure:
-1. The LangGraph agent is running on port 8000
-2. Your OpenAI API key is set correctly
-3. Both servers started successfully
+---
 
-### Python Dependencies
-If you encounter Python import errors:
-```bash
-npm install:agent
-```
+## 📚 Resources
+
+- [CopilotKit Docs](https://docs.copilotkit.ai)
+- [LangGraph Docs](https://langchain-ai.github.io/langgraph/)
+- [uv Documentation](https://docs.astral.sh/uv/)
